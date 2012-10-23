@@ -352,6 +352,7 @@ Dekorerer vilkårlig funksjon:
 
 Og i bruk:
 
+    .no-highlight
     >>> treg_fn()
     foo
     brukte 3.011838 sekunder
@@ -374,7 +375,7 @@ Dekorator:
                 return cache[arg]
         return wrapper
 
-Naiv implementasjon:
+Naiv implementasjon med memoisering:
 
     @memoize
     def fib(n):
