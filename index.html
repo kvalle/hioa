@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Funksjoner i Python</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <script src="https://github.com/downloads/gnab/remark/remark-0.3.1.min.js" type="text/javascript">
+      { "highlightStyle": "solarized_light" }
+    </script>
+    <script src="./lib/jquery-1.7.1.js" type="text/javascript"></script>
+    <script src="./lib/bekk.js" type="text/javascript"></script>
+
+    <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet/less" type="text/css" href="./lib/bekk.less">
+    <script src="http://lesscss.googlecode.com/files/less-1.1.5.min.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        .quote {
+            line-height: 1.5; 
+            color: #C9C0B5
+        }
+         .quote .emph {
+            color: #FD5158;
+         }
+     </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+.front-page
+
+# Funksjoner i Python
+
+## hva funksjoner **egentlig** kan brukes til
+
+2012-10-23
+
+Bedriftspresentasjon, HiOA
+
+Kjetil Valle
+
+---
+
+.agenda
+
+# Agenda
+
+* Førsteklasses funksjoner
+* Lambda-funksjoner
+* Dekoratorer
+
+---
+
+.middle.center
+
+# Førsteklasses funksjoner
+
+---
+
+# Førsteklasses funksjoner
+
+Noen eksempler
+
+    def funksjon():
+        """En helt vanlig funksjon."""
+        pass
+
+    def ytre():
+        def indre():
+            """Funksjon definert inne i en annen funksjon."""
+            pass
+
+    class Foo:
+        def bar(self):
+            """Metode i en klasse. Kalles som Foo().bar()."""
+            pass
+
+---
+
+# Førsteklasses funksjoner
+
+Kan assignes til variabler som alias
+
+    >>> listelengde = len
+    >>> listelengde([1,2,3])
+    3
+
+---
+
+# Førsteklasses funksjoner
+
+Kan brukes som argument til andre funksjoner
+
+    >>> def foo():
+    ...     print "HAI from foo, kthxbye"
+    ... 
+    >>> def bar(fn):
+    ...     fn()
+    ... 
+    >>> bar(foo)
+    HAI from foo, kthxbye
+
+---
+
+# Førsteklasses funksjoner
+
+Kan returneres fra funksjoner
+
+    >>> def bar():
+    ...     def foo():
+    ...             print "Greetings from foo"
+    ...     return foo
+    ... 
+    >>> fn = bar()
+    >>> fn()
+    Greetings from foo
+
+---
+
+# Førsteklasses funksjoner
+
+Kan lagres i datastrukturer
+
+    >>> def spam(n):
+    ...     return "spam" * n
+    ... 
+    >>> data = {
+    ...     'lag_spam': spam,
+    ...     'lag_liste': range
+    ... }
+    >>> data['lag_liste']
+    <built-in function range>
+    >>> data['lag_spam'](4)
+    'spamspamspamspam'
+
+---
+
+# Førsteklasses funksjoner
+
+La oss oppsummere egenskapene til *førsteklasses* funksjoner. 
+
+En funksjon i Python kan:
+
+1. defineres de fleste steder der en kan tilordne variabler, også inne i andre funksjoner.
+1. sendes som argumenter til andre funksjoner.
+1. brukes som returverdier fra andre funksjoner.
+1. tilordnes variabler etter at den er definert.
+1. lagres i datastrukturerer.
+
+---
+
+.middle.center
+
+# Lambda-funksjoner
+
+---
+
+# Lambda-funksjoner
+
+Syntaks:
+
+    lambda arg1, arg2: uttrykk
+
+
+---
+
+# Lambda-funksjoner
+
+Vanlig funksjon
+
+    def inkrementer(num):
+        return num + 1
+
+Lambda
+
+    inkrementer = lambda num: num + 1
+
+---
+
+# Lambda-funksjoner
+
+Eksempel med `filter`
+
+    >>> def er_partall(x):
+    ...     return x % 2 == 0
+    ... 
+    >>> filter(er_partall, [4, 8, 15, 16, 23, 42])
+    [4, 8, 16, 42]
+
+Med lambda:
+
+    >>> filter(lambda x: x % 2 == 0, [4, 8, 15, 16, 23, 42])
+    [4, 8, 16, 42]
+
+---
+
+.middle.center
+
+# Dekoratorer
+
+---
+
+# Dekoratorer
+
+Syntaks:
+
+    @dekorator
+    def funksjon():
+        pass
+
+Implementert uten dekorator-syntax:
+
+    def funksjon():
+        pass
+    funksjon = dekorator(funksjon)
+
+---
+
+# Dekoratorer
+
+Implementasjon:
+
+    def dekorator(fn):
+        def ny_fn():
+            # Her kan vi gjøre hva vi vil!
+            # Vanligvis inkluderer det et kall til fn().
+        return ny_fn
+
+---
+
+# Dekoratorer
+
+Enkelt eksempel
+
+    >>> def dekorator(fn):
+    ...     print "DEKORERER"
+    ...     def wrapper():
+    ...         print "STARTER WRAPPER"
+    ...         fn()
+    ...         print "SLUTTER WRAPPER"
+    ...     return wrapper
+    ... 
+    >>> @dekorator
+    ... def test():
+    ...     print "TEST"
+    ... 
+    DEKORERER
+    >>> test()
+    STARTER WRAPPER
+    TEST
+    SLUTTER WRAPPER
+
+---
+
+# Dekoratorer
+
+Eksempel: Telling av argumenter
+
+    def tell_argumenter(fn):
+        def wrapper(*args, **kwargs):
+            antall = len(args) + len(kwargs)
+            print "fikk inn %d argumenter" % antall
+            return fn(*args, **kwargs)
+        return wrapper
+
+---
+
+# Dekoratorer
+
+    >>> @tell_argumenter
+    ... def foo(*args, **kwargs):
+    ...     pass
+    ... 
+    >>> foo()
+    fikk inn 0 argumenter
+    >>> foo(1, 2, 3)
+    fikk inn 3 argumenter
+    >>> foo(1, 2, 3, bar="baz")
+    fikk inn 4 argumenter
+    >>> foo(*range(1000000))
+    fikk inn 1000000 argumenter
+
+---
+
+# Dekoratorer
+
+Stacking av dekoratorer
+
+    @dekorator1
+    @dekorator2
+    def funksjon():
+        pass
+
+Uten dekorator-syntax:
+
+    def funksjon():
+        pass
+    funksjon = dekorator1(dekorator2(funksjon))
+
+---
+
+# Dekoratorer
+
+Eksempel: `@ignore`
+
+    def ignore(fn):
+        def wrapper(*args, **kwargs):
+            pass
+        return wrapper
+
+---
+
+# Dekoratorer
+
+Eksempel: `@deprecated`
+
+    def deprecated(fn):
+        def wrapper(*args, **kwargs):
+            print "Warning: '%s' is deprecated!" % fn.__name__
+            return fn(*args, **kwargs)
+        return wrapper
+
+---
+
+# Dekoratorer
+
+Eksempel: `@timed`
+
+    from time import time
+
+    def timed(fn):
+        def wrapper(*args, **kwargs):
+            start = time()
+            resultat = fn(*args, **kwargs)
+            print "brukte %f sekunder" % (time() - start)
+            return resultat
+        return wrapper
+
+---
+
+# Dekoratorer
+
+Dekorerer vilkårlig funksjon:
+
+    from time import sleep
+
+    @timed    
+    def treg_fn():
+        sleep(3)
+        print "foo"
+
+Og i bruk:
+
+    >>> treg_fn()
+    foo
+    brukte 3.011838 sekunder
+
+---
+
+# Dekoratorer
+
+Eksempel: `@memoize`
+
+Dekorator:
+
+    def memoize(fn):
+        cache = {}
+        def wrapper(arg):
+            if arg in cache:
+                return cache[arg]
+            else:
+                cache[arg] = fn(arg)
+                return cache[arg]
+        return wrapper
+
+Naiv implementasjon:
+
+    @memoize
+    def fib(n):
+        if n in (0,1): return n
+        return fib(n-1) + fib(n-2)
+
+---
+
+# Dekoratorer
+
+Vi endrer for mye!
+
+    >>> def buu_dekorator(fn):
+    ...     def ny_fn(*args, **kwargs):
+    ...         # noe artig her
+    ...         return fn(*args, **kwargs)
+    ...     return ny_fn
+    ... 
+    >>> @buu_dekorator
+    ... def foo():
+    ...     """foo sin docstring"""
+    ...     pass
+    ... 
+    >>> foo.__name__
+    ny_fn
+    >>> foo.__doc__
+    None
+
+---
+
+# Dekoratorer
+
+Dekoratoren `functools.wraps` to the rescue!
+
+    >>> from functools import wraps
+    >>> 
+    >>> def yay_dekorator(fn):
+    ...     @wraps(fn)
+    ...     def wrapper(*args, **kwargs):
+    ...         # noe artig her
+    ...         return fn(*args, **kwargs)
+    ...     return wrapper
+    ... 
+    >>> @yay_dekorator
+    ... def foo():
+    ...     """foo sin docstring"""
+    ...     pass
+    ... 
+    >>> foo.__name__
+    foo
+    >>> foo.__doc__
+    foo sin docstring
+
+---
+
+# Dekoratorer
+
+Dekoratorer med input
+
+    >>> def gjenta(ganger):
+    ...     def generert_dekorator(fn):
+    ...         def wrapper(*args, **kwargs):
+    ...             return [fn(*args, **kwargs) for i in range(ganger)]
+    ...         return wrapper
+    ...     return generert_dekorator
+    ... 
+    >>> @gjenta(4)
+    ... def spam():
+    ...     return "spam"
+    ... 
+    >>> spam()
+    ['spam', 'spam', 'spam', 'spam']
+
+---
+
+# Dekoratorer
+
+Igjen, uten dekorator-syntaks:
+
+    >>> def spam():
+    ...     return "spam"
+    ... 
+    >>> spam = gjenta(4)(spam)
+    >>> spam()
+    ['spam', 'spam', 'spam', 'spam']
+
+---
+
+# Oppsummering
+
+- *Funksjoner* er førsteklasses i Python, og kan derfor:
+  - Defineres inne i andre funksjoner.
+  - Brukes som argumenter og returverdier fra andre funksjoner.
+  - Tilordnes variabler.
+  - Lagres i datastrukturer.
+- *Lambdaer* er enlinjes funksjoner uten navn.
+- *Dekoratorer* lar oss endre funksjonalitet på eksisterende funksjoner uten å endre dem direkte.
+  - Dekoratorene erstatter den dekorerte funksjonen med en ny funksjon.
+  - I praksis bare hendig syntax for å benytte høyere ordens funksjoner.
+
+---
+
+.middle.center
+
+# <span style="font-size: 5em;">‽</span>
+
+Kjetil Valle  
+<a href="mailto:kjetil.valle@bekk.no">kjetil.valle@bekk.no</a>
+
+    </textarea>
+    <div id="slideshow"></div>
+  </body>
+</html>
