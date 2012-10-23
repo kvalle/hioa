@@ -463,6 +463,56 @@ Igjen, uten dekorator-syntaks:
 
 ---
 
+# Dekoratorer
+
+Reelt eksempel: [Flask](http://flask.pocoo.org/docs/patterns/viewdecorators/)
+
+Routing:
+
+    @app.route('/secret_page')
+    @login_required
+    def secret_page():
+        pass
+
+Login-dekorator:
+
+    from functools import wraps
+    from flask import g, request, redirect, url_for
+
+    def login_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if g.user is None:
+                return redirect(url_for('login', next=request.url))
+            return f(*args, **kwargs)
+        return decorated_function
+
+Liknende ting brukes også i Django og andre web-rammeverk.
+
+---
+
+# Dekoratorer
+
+Reelt eksempel: [unittest](http://docs.python.org/library/unittest.html#skipping-tests-and-expected-failures)
+
+Skipping av tester:
+
+    class MyTestCase(unittest.TestCase):
+
+        @unittest.skip("demonstrating skipping")
+        def test_nothing(self):
+            self.fail("shouldn't happen")
+
+Forvente exceptions
+
+    class ExpectedFailureTestCase(unittest.TestCase):
+        
+        @unittest.expectedFailure
+        def test_fail(self):
+            self.assertEqual(1, 0, "broken")
+
+---
+
 # Oppsummering
 
 - *Funksjoner* er førsteklasses i Python, og kan derfor:
